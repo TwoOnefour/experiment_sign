@@ -1,6 +1,5 @@
-
-
 from Sign import Sign
+
 
 if __name__ == "__main__":
     bot = Sign("", "", "")  # Sign(账号，密码，老师名称)
