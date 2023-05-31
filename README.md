@@ -5,5 +5,6 @@
 ```
 git clone https://github.com/twoonefour/experiment_sign.git
 cd experiment_sign.git
+vim main.py # 修改好对应信息
 nohup python main.py&
 ```
