@@ -1,5 +1,11 @@
 import requests
-import copy
+import time
+
+import urllib3
+
+urllib3.disable_warnings()
+
+
 class Sign:
     def __init__(self, username, password, teacher):
         self.latitude = None
@@ -16,22 +22,27 @@ class Sign:
             "list_index": "/api/minipro/student/index",  # 需要数据 json={"longitude": 114, "latitude": 30}
             "check_in": "/api/minipro/student/cherk_in"
         }
+
     def set_location(self, longitude, latitude):
         self.latitude = latitude
         self.longitude = longitude
 
     def list_course(self):
-        res = self.session.post(f"{self.baseurl}{self.api['list_index']}", json={
-            "latitude": self.latitude,
-            "longitude": self.longitude
-        }, verify=False)
-        res_json = res.json()
-        # print(res)
-        for i in res_json["data"]["list"]:
-            # self.course_dict[i["id"]] = i["project_name"]
-            for j in i["teacher_name"]:
-                if j == self.teacher:
-                    self.check_in(i["id"])
+        try:
+            res = self.session.post(f"{self.baseurl}{self.api['list_index']}", json={
+                "latitude": self.latitude,
+                "longitude": self.longitude
+            }, verify=False)
+            res_json = res.json()
+            # print(res)
+            for i in res_json["data"]["list"]:
+                # self.course_dict[i["id"]] = i["project_name"]
+                for j in i["teacher_name"]:
+                    if j == self.teacher:
+                        self.check_in(i["id"])
+            return True
+        except Exception as e:
+            return False
 
     def check_in(self, patch_id):
         res = self.session.post(f"{self.baseurl + self.api['check_in']}", json={
@@ -59,5 +70,8 @@ class Sign:
 
     def run(self):
         if self.login():
-            self.list_course()
-            self.logout()
+            while True:
+                if not self.list_course():
+                    self.logout()
+                    break
+                time.sleep(30)
